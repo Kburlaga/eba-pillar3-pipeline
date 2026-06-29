@@ -34,16 +34,17 @@ def cfg_db():
     return yaml.safe_load(open("config.yaml", encoding="utf-8"))["database"]
 
 
-def packages() -> str:
-    """Pipe-separated lista lokalnych paczek taksonomii (seed dla Arelle)."""
-    pk = sorted(glob.glob(os.path.join(TAXO_DIR, "*.zip")))
+def packages(fw: str) -> str:
+    """Paczki taksonomii TYLKO dla wersji frameworku raportu (np. 4.1 albo 4.2).
+    Mieszanie wersji powoduje tpe:packageRewriteOverlap (nakładające reguły URL)."""
+    pk = sorted(glob.glob(os.path.join(TAXO_DIR, f"EBA_XBRL_{fw}_*.zip")))
     return "|".join(pk)
 
 
-def run_arelle(report_zip: str, log_path: str):
+def run_arelle(report_zip: str, log_path: str, pkg: str):
     cmd = [sys.executable, "-m", "arelle.CntlrCmdLine",
            "--file", report_zip,
-           "--packages", packages(),
+           "--packages", pkg,
            "--validate", "--formula", "run",
            "--plugins", "loadFromOIM",
            "--logFile", log_path, "--logLevel", "warning"]
@@ -66,9 +67,9 @@ def parse_log(log_path: str):
 def main():
     conn = psycopg2.connect(**{k: cfg_db()[k] for k in ("host", "port", "user", "password", "dbname")})
     cur = conn.cursor()
-    # mapowanie source_file -> report_id
-    cur.execute("SELECT source_file, id FROM bronze_report")
-    by_file = dict(cur.fetchall())
+    # mapowanie source_file -> (report_id, framework_version)
+    cur.execute("SELECT source_file, id, framework_version FROM bronze_report")
+    by_file = {r[0]: (r[1], r[2]) for r in cur.fetchall()}
 
     zips = sorted(glob.glob(os.path.join(LANDING, "*.zip")))
     print(f"=== Walidacja XBRL (Arelle): {len(zips)} paczek ===")
@@ -76,13 +77,24 @@ def main():
 
     for zp in zips:
         fname = os.path.basename(zp)
-        rid = by_file.get(fname)
-        if rid is None:
+        info = by_file.get(fname)
+        if info is None:
             print(f"POMIJAM (brak w bazie): {fname}")
             continue
+        rid, fw = info
+        pkg = packages(fw)
         log_path = os.path.join(scratch, f"{rid}.json")
+        if not pkg:
+            # brak lokalnej paczki taksonomii dla tej wersji frameworku
+            cur.execute("DELETE FROM xbrl_validation_result WHERE report_id=%s", (rid,))
+            cur.execute("DELETE FROM xbrl_validation_run WHERE report_id=%s", (rid,))
+            cur.execute("""INSERT INTO xbrl_validation_run (report_id,status,n_errors,n_warnings,note)
+                           VALUES (%s,'skipped',0,0,%s)""", (rid, f"brak paczki taksonomii {fw} w {TAXO_DIR}"))
+            conn.commit()
+            print(f"{fname}: skipped (brak taksonomii {fw})")
+            continue
         try:
-            run_arelle(zp, log_path)
+            run_arelle(zp, log_path, pkg)
             recs, load_errs = parse_log(log_path)
         except subprocess.TimeoutExpired:
             recs, load_errs = [], [{"code": "timeout", "level": "error", "text": "Arelle timeout"}]
