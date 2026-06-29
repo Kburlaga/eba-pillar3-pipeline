@@ -22,10 +22,9 @@ requests>=2.31
 camelot-py>=0.12     # wyciąganie tabel z PDF
 tabula-py>=2.9       # alternatywne narzędzie do tabel w PDF
 
-# Parsowanie XBRL (nowe raporty)
-# arelle - instalowany osobno jako narzędzie zewnętrzne
-# (nie przez pip w wersji stabilnej dla Windows)
-lxml>=5.1            # do parsowania XML/XBRL
+# Parsowanie + walidacja XBRL
+arelle-release>=2.41   # procesor XBRL: ładuje xBRL-CSV (Load From OIM) + walidacja formuł EBA
+lxml>=5.1              # do parsowania XML/XBRL
 
 # Orkiestracja - zarządzanie harmonogramem i przepływem
 prefect>=2.16

@@ -181,6 +181,28 @@ CREATE TABLE IF NOT EXISTS silver_orphan_fact (
 );
 CREATE INDEX IF NOT EXISTS idx_orphan_report ON silver_orphan_fact(report_id);
 
+-- Walidacja XBRL (Arelle) — patrz validate_arelle.py, migracja 007
+CREATE TABLE IF NOT EXISTS xbrl_validation_run (
+    id         SERIAL PRIMARY KEY,
+    report_id  INTEGER NOT NULL REFERENCES bronze_report(id) ON DELETE CASCADE,
+    status     VARCHAR(20) NOT NULL,         -- validated / skipped / error
+    n_errors   INTEGER DEFAULT 0,
+    n_warnings INTEGER DEFAULT 0,
+    engine     VARCHAR(30) DEFAULT 'arelle',
+    note       TEXT,
+    ran_at     TIMESTAMP DEFAULT now(),
+    UNIQUE(report_id)
+);
+CREATE TABLE IF NOT EXISTS xbrl_validation_result (
+    id         SERIAL PRIMARY KEY,
+    report_id  INTEGER NOT NULL REFERENCES bronze_report(id) ON DELETE CASCADE,
+    rule_code  VARCHAR(80),
+    severity   VARCHAR(20),
+    message    TEXT,
+    checked_at TIMESTAMP DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_xval_report ON xbrl_validation_result(report_id);
+
 CREATE TABLE IF NOT EXISTS validation_rule (
     id              SERIAL PRIMARY KEY,
     template_id     INTEGER REFERENCES eba_template(id),

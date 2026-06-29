@@ -66,3 +66,6 @@ reports/
 check_db_state.py
 fix_rules.py
 test_migrate_and_verify.py
+
+# Tymczasowe logi Arelle z eksperymentów
+scratch_arelle*.json

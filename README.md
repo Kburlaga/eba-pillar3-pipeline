@@ -124,6 +124,33 @@ Automatic mode:
 python watch_landing.py                 # then just drop .zip files into bronze/landing/
 ```
 
+## Validation (XBRL formulas, via Arelle)
+
+EBA defines its validation rules as **XBRL formula assertions** in the taxonomy
+(the same rules also live in the DPM `operation*` tables). Instead of
+re-implementing them, the pipeline runs the **real engine**:
+
+```bash
+python validate_arelle.py     # validates bronze/landing/*.zip against EBA taxonomy
+```
+
+[Arelle](https://arelle.org/) loads each xBRL-CSV report package (Load From OIM),
+resolves the taxonomy (local 4.1 packages from `master_data/` + online for other
+releases) and executes the formula assertions. Results land in
+`xbrl_validation_run` / `xbrl_validation_result` and show in the dashboard
+(Quality tab). Note: filings published by the EBA already passed validation, so
+this mostly confirms "pass" — the value here is demonstrating the real
+validation step end-to-end. Run on demand (loading the DTS is heavy).
+
+Currently the local taxonomy packages cover **framework 4.1**, so 4.1 reports
+validate fully (and pass — they are published filings). Reports on **4.2** are
+marked `skipped` until the 4.2 taxonomy package is added (its online entry point
+is not reachable; the package must be downloaded from the EBA).
+
+*Planned (educational):* a second path that transforms the EBA rules straight
+from the DPM `operation*` tables into executable checks, to compare both engines
+on the same rules.
+
 ## Data & disclaimer
 
 Uses **public** EBA Pillar 3 disclosure data and the EBA DPM 2.0 taxonomy.

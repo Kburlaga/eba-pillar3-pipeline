@@ -231,3 +231,26 @@ with tab4:
         st.warning("Fakty bez komórki w układzie szablonu (do zbadania):")
         recon.columns = ["Bank", "Szablon", "Faktów", "Z komórką", "Sierot"]
         st.dataframe(recon, use_container_width=True, hide_index=True)
+
+    st.divider()
+    st.subheader("Walidacja XBRL (Arelle) — reguły EBA z taksonomii")
+    runs = q("""
+        SELECT COALESCE(b.nazwa, br.lei) AS bank, br.ref_period::text AS okres,
+               br.framework_version AS fw, r.status, r.n_errors, r.n_warnings, r.note
+        FROM xbrl_validation_run r
+        JOIN bronze_report br ON br.id = r.report_id
+        LEFT JOIN bank b ON b.lei = br.lei
+        ORDER BY bank, okres
+    """)
+    if runs.empty:
+        st.info("Brak wyników walidacji XBRL. Uruchom: `python validate_arelle.py`")
+    else:
+        runs.columns = ["Bank", "Okres", "Framework", "Status", "Błędy", "Ostrzeżenia", "Uwaga"]
+        st.dataframe(runs, use_container_width=True, hide_index=True)
+        st.markdown(f"**Naruszenia dla wybranego raportu** — {rep['bank']} · {rep['okres']}:")
+        viol = q("""SELECT rule_code AS "Reguła", severity AS "Severity", message AS "Komunikat"
+                    FROM xbrl_validation_result WHERE report_id=%(r)s ORDER BY severity""", {"r": rid})
+        if viol.empty:
+            st.success("Brak naruszeń — raport zgodny z regułami EBA (lub nie był walidowany).")
+        else:
+            st.dataframe(viol, use_container_width=True, hide_index=True)
