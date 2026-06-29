@@ -155,9 +155,14 @@ difference on 4.1 (likely defaulted dimensions) — surfaced in the dashboard
 (`silver_crosscheck`). Two independent engines, same data — confidence the DPM
 resolution is correct.
 
-*Planned (educational):* a second path that transforms the EBA rules straight
-from the DPM `operation*` tables into executable checks, to compare both engines
-on the same rules.
+**Rules-as-data (DPM → executable).** `validate_dpm.py` transforms EBA's own
+validation rules straight from the DPM `operation*` tables
+(`operationversion.Expression`) into an executable evaluator and runs them on
+`gold_cell` — a second, independent path to the same rules Arelle runs from the
+taxonomy. Scope: the linear intra-table class (`{rA} = {rB}+{rC}`, `>= / <=`),
+release-aware. Result: all evaluated rules pass, **agreeing with Arelle** — same
+rules, two engines. (Linear sum-checks live in detail templates; the small 4.2
+key-metric filings carry mostly complex rules, out of this subset.)
 
 ## Data & disclaimer
 

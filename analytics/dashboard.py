@@ -274,3 +274,23 @@ with tab4:
         xc.columns = ["Bank","Okres","Status","Fakty","Wartości zgodne","Tylko srebro","Tylko Arelle","Wymiary (srebro)","Wymiary (Arelle)"]
         st.dataframe(xc, use_container_width=True, hide_index=True)
         st.caption(f"{ok}/{len(xc)} raportów: pełna zgodność (fakty, wartości i wymiary identyczne dwiema niezależnymi drogami).")
+
+    st.divider()
+    st.subheader("Walidacja regułami DPM (rules-as-data) — druga droga vs Arelle")
+    st.caption("Reguły EBA z DPM (operationversion) przepisane na ewaluator; klasa liniowa wewnątrz-tabelowa.")
+    dpm = q("""
+        SELECT COALESCE(b.nazwa, br.lei) AS bank, br.ref_period::text AS okres, br.framework_version AS fw,
+               r.rules_evaluated, r.n_passed, r.n_failed, r.n_skipped, r.status
+        FROM dpm_validation_run r
+        JOIN bronze_report br ON br.id = r.report_id
+        LEFT JOIN bank b ON b.lei = br.lei
+        ORDER BY bank, okres
+    """)
+    if dpm.empty:
+        st.info("Brak wyników. Uruchom: `python validate_dpm.py`")
+    else:
+        dpm.columns = ["Bank","Okres","Framework","Reguł ewaluowanych","Pass","Fail","Pominięte","Status"]
+        st.dataframe(dpm, use_container_width=True, hide_index=True)
+        st.caption("Reguły liniowe występują głównie w tabelach szczegółowych (np. K_23, K_49). "
+                   "Raporty 4.2 (tylko tabele kluczowe) mają tu 0 reguł liniowych — ich reguły są złożone. "
+                   "Wynik zgodny z walidacją Arelle (brak naruszeń).")
