@@ -1,0 +1,68 @@
+# ============================================================
+# Pliki i katalogi NIE trafiające do repozytorium Git
+# ============================================================
+
+# Python — pliki tymczasowe i cache
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+*.egg
+.pytest_cache/
+
+# Środowisko wirtualne (lokalne zależności)
+.venv/
+venv/
+
+# Pliki konfiguracyjne ze środowiska
+.env
+*.env
+
+# Baza danych — lokalne kopie (dane są na serwerze/volumenie)
+*.db
+*.sqlite
+pgdata/
+
+# Dane — surowe i przetworzone (duże pliki)
+bronze/downloads/
+bronze/data/
+
+# Dane z Prefect (historia uruchomień)
+prefect_data/
+
+# Konfiguracja IDE
+.vscode/
+.idea/
+
+# Pliki systemowe
+.DS_Store
+Thumbs.db
+
+# Logi
+*.log
+logs/
+
+# Backup
+*.bak
+
+# ============================================================
+# Sekrety — NIE publikować
+# (UWAGA: komentarz MUSI być w osobnej linii; inline # to część wzorca!)
+# ============================================================
+# dane dostępowe do bazy; wzorzec: config.example.yaml
+config.yaml
+
+# ============================================================
+# Duże dane / paczki — poza repo (instrukcja pobrania w README)
+# ============================================================
+# taksonomia DPM 2.0, ITS (setki MB, redystrybucja EBA)
+master_data/
+# paczki xBRL-CSV banków (landing + przykłady)
+bronze/
+# surowe raporty z portalu EBA
+reports/
+# Dev-skrypty pomocnicze (zawierały zahardkodowane dane)
+check_db_state.py
+fix_rules.py
+test_migrate_and_verify.py

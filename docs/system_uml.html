@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>UML systemu — EBA Pillar 3 Pipeline</title>
+<style>
+  body { font-family:"Segoe UI",Tahoma,sans-serif; background:#eef1f6; margin:0; padding:24px; }
+  h1 { font-size:19px; color:#1f3864; margin:0 0 4px; }
+  p.sub { color:#555; margin:0 0 16px; font-size:13px; }
+  svg { background:#fff; border:1px solid #c9d2e3; border-radius:6px; }
+  .legend { font-size:12px; color:#444; margin-top:16px; line-height:1.7; max-width:1180px; }
+  .legend b { color:#1f3864; }
+  .chip { display:inline-block; padding:1px 7px; border-radius:3px; font-size:11px; color:#fff; }
+</style>
+</head>
+<body>
+  <h1>EBA Pillar 3 Pipeline — schemat systemu (UML)</h1>
+  <p class="sub">Warstwy Medallion · przepływ danych · orkiestracja · dane referencyjne</p>
+
+  <svg width="1200" height="980" viewBox="0 0 1200 980">
+    <defs>
+      <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L8,3 L0,6 Z" fill="#c00000"/>
+      </marker>
+      <marker id="arrG" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L8,3 L0,6 Z" fill="#777"/>
+      </marker>
+      <style>
+        .pkg     { fill:none; stroke-width:1.6; rx:6; }
+        .pkgtab  { font-size:13px; font-weight:bold; }
+        .tbl     { fill:#fff; stroke:#8aa0c8; stroke-width:1.1; }
+        .hdr     { fill:#4472C4; }
+        .hdrtx   { fill:#fff; font-size:12.5px; font-weight:bold; }
+        .fld     { fill:#222; font-size:11.5px; }
+        .pk      { font-weight:bold; fill:#1f3864; }
+        .fk      { font-style:italic; fill:#7a3b00; }
+        .note    { fill:#666; font-size:10.5px; font-style:italic; }
+        .flow    { stroke:#c00000; stroke-width:1.8; fill:none; }
+        .flowtx  { fill:#c00000; font-size:11px; font-weight:bold; }
+        .ref     { stroke:#777; stroke-width:1.4; fill:none; stroke-dasharray:5 4; }
+        .reftx   { fill:#777; font-size:10.5px; font-style:italic; }
+        .orch    { stroke:#2e7d32; stroke-width:1.6; fill:none; stroke-dasharray:6 4; }
+      </style>
+
+      <!-- header fill helpers -->
+    </defs>
+
+    <!-- ====================== ORKIESTRACJA (Prefect) ====================== -->
+    <rect x="210" y="24" width="930" height="42" rx="6" fill="#e7f4e8" stroke="#2e7d32" stroke-width="1.4"/>
+    <text x="230" y="50" font-size="13px" font-weight="bold" fill="#1b5e20">⏱ PREFECT — orkiestracja</text>
+    <text x="430" y="50" font-size="11.5px" fill="#2e7d32">harmonogram kwartalny · retry przy błędzie · logowanie każdego kroku</text>
+
+    <!-- ====================== ŹRÓDŁO ====================== -->
+    <rect class="tbl" x="30" y="300" width="160" height="100" rx="4" fill="#efefef" stroke="#777"/>
+    <rect x="30" y="300" width="160" height="28" rx="4" fill="#555"/>
+    <text x="44" y="319" fill="#fff" font-size="12.5px" font-weight="bold">EBA Pillar 3 Data Hub</text>
+    <text class="note" x="44" y="350">źródło zewnętrzne</text>
+    <text class="fld" x="44" y="372">paczki xBRL-CSV</text>
+    <text class="fld" x="44" y="390">(.zip)</text>
+
+    <!-- ====================== PAKIET: BRĄZ ====================== -->
+    <rect class="pkg" x="220" y="92" width="246" height="430" stroke="#b87333" fill="#fbf3ea"/>
+    <text class="pkgtab" x="234" y="114" fill="#8a5a23">BRĄZ — surowe (as-is)</text>
+
+    <!-- bronze_report -->
+    <rect class="tbl" x="238" y="130" width="210" height="92"/>
+    <rect class="hdr" x="238" y="130" width="210" height="26"/>
+    <text class="hdrtx" x="250" y="148">bronze_report</text>
+    <text class="fld pk" x="250" y="172">🔑 id</text>
+    <text class="fld" x="250" y="190">lei · ref_period</text>
+    <text class="fld" x="250" y="207">base_currency · decimals_*</text>
+
+    <!-- bronze_filing_indicator -->
+    <rect class="tbl" x="238" y="244" width="210" height="78"/>
+    <rect class="hdr" x="238" y="244" width="210" height="26"/>
+    <text class="hdrtx" x="250" y="262">bronze_filing_indicator</text>
+    <text class="fld fk" x="250" y="286">report_id (FK)</text>
+    <text class="fld" x="250" y="303">template_id · reported</text>
+
+    <!-- bronze_fact -->
+    <rect class="tbl" x="238" y="346" width="210" height="96"/>
+    <rect class="hdr" x="238" y="346" width="210" height="26"/>
+    <text class="hdrtx" x="250" y="364">bronze_fact</text>
+    <text class="fld fk" x="250" y="388">report_id (FK)</text>
+    <text class="fld" x="250" y="405">template_file · datapoint_code</text>
+    <text class="fld" x="250" y="422">fact_value (TEXT)</text>
+
+    <!-- ====================== PAKIET: SREBRO ====================== -->
+    <rect class="pkg" x="510" y="92" width="246" height="430" stroke="#7a8794" fill="#f2f4f7"/>
+    <text class="pkgtab" x="524" y="114" fill="#55606b">SREBRO — zwalidowane</text>
+
+    <!-- silver_fact -->
+    <rect class="tbl" x="528" y="130" width="210" height="150"/>
+    <rect class="hdr" x="528" y="130" width="210" height="26" fill="#6b7785"/>
+    <text class="hdrtx" x="540" y="148">silver_fact</text>
+    <text class="fld pk" x="540" y="172">🔑 id</text>
+    <text class="fld fk" x="540" y="190">report_id (FK)</text>
+    <text class="fld" x="540" y="207">datapoint_code</text>
+    <text class="fld" x="540" y="224">metric · dimensions</text>
+    <text class="fld" x="540" y="241">value_num · unit · scale</text>
+    <text class="note" x="540" y="262">dp rozszyfrowany + typowany</text>
+
+    <!-- validation_result -->
+    <rect class="tbl" x="528" y="304" width="210" height="138"/>
+    <rect class="hdr" x="528" y="304" width="210" height="26" fill="#6b7785"/>
+    <text class="hdrtx" x="540" y="322">validation_result</text>
+    <text class="fld fk" x="540" y="346">report_id (FK)</text>
+    <text class="fld fk" x="540" y="363">rule_id (FK)</text>
+    <text class="fld" x="540" y="380">passed (bool)</text>
+    <text class="fld" x="540" y="397">expected · actual</text>
+    <text class="note" x="540" y="420">kompletność + spójność</text>
+
+    <!-- ====================== PAKIET: ZŁOTO ====================== -->
+    <rect class="pkg" x="800" y="92" width="310" height="430" stroke="#c9a227" fill="#fbf6df"/>
+    <text class="pkgtab" x="814" y="114" fill="#9a7c12">ZŁOTO — analityczne (widoki)</text>
+
+    <rect class="tbl" x="818" y="130" width="274" height="74"/>
+    <rect class="hdr" x="818" y="130" width="274" height="26" fill="#b8941f"/>
+    <text class="hdrtx" x="830" y="148">v_key_metrics</text>
+    <text class="fld" x="830" y="172">bank · period · CET1 · LCR · dźwignia</text>
+    <text class="note" x="830" y="190">sprawozdane wartości (nie liczone)</text>
+
+    <rect class="tbl" x="818" y="222" width="274" height="74"/>
+    <rect class="hdr" x="818" y="222" width="274" height="26" fill="#b8941f"/>
+    <text class="hdrtx" x="830" y="240">v_peer_benchmark</text>
+    <text class="fld" x="830" y="264">metric · mediana · percentyle (grupa)</text>
+    <text class="note" x="830" y="282">bank vs grupa rówieśnicza</text>
+
+    <rect class="tbl" x="818" y="314" width="274" height="74"/>
+    <rect class="hdr" x="818" y="314" width="274" height="26" fill="#b8941f"/>
+    <text class="hdrtx" x="830" y="332">v_trend</text>
+    <text class="fld" x="830" y="356">bank · metric · szereg czasowy</text>
+    <text class="note" x="830" y="374">zmiana w czasie</text>
+
+    <!-- ====================== DASHBOARD ====================== -->
+    <rect class="tbl" x="818" y="430" width="274" height="74" rx="4" fill="#efeaf7" stroke="#6a3fb5"/>
+    <rect x="818" y="430" width="274" height="26" rx="4" fill="#6a3fb5"/>
+    <text x="830" y="448" fill="#fff" font-size="12.5px" font-weight="bold">📊 STREAMLIT — dashboard</text>
+    <text class="fld" x="830" y="472">przegląd sektora · widok banku · jakość</text>
+    <text class="note" x="830" y="490">eksport CSV/XLSX</text>
+
+    <!-- ====================== PAKIET: REFERENCJE + MASTER ====================== -->
+    <rect class="pkg" x="30" y="600" width="1080" height="350" stroke="#4472C4" fill="#eef3fc"/>
+    <text class="pkgtab" x="44" y="622" fill="#2c4a8a">DANE REFERENCYJNE + MASTER DATA (DPM 2.0 / Framework 4.1)</text>
+
+    <!-- dpm2_ref -->
+    <rect class="tbl" x="54" y="640" width="210" height="120"/>
+    <rect class="hdr" x="54" y="640" width="210" height="26"/>
+    <text class="hdrtx" x="66" y="658">dpm2_ref (schemat)</text>
+    <text class="fld" x="66" y="682">54 tabele · ~5,8M wierszy</text>
+    <text class="fld" x="66" y="700">concept · variableversion</text>
+    <text class="fld" x="66" y="718">tableversioncell · dimensions</text>
+    <text class="note" x="66" y="742">słownik: dp-kod → metryka+wymiary</text>
+
+    <!-- bank -->
+    <rect class="tbl" x="300" y="640" width="180" height="74"/>
+    <rect class="hdr" x="300" y="640" width="180" height="26"/>
+    <text class="hdrtx" x="312" y="658">bank</text>
+    <text class="fld pk" x="312" y="682">🔑 id · lei</text>
+    <text class="fld" x="312" y="700">nazwa · kraj · kategoria</text>
+
+    <!-- reporting_period -->
+    <rect class="tbl" x="300" y="730" width="180" height="60"/>
+    <rect class="hdr" x="300" y="730" width="180" height="26"/>
+    <text class="hdrtx" x="312" y="748">reporting_period</text>
+    <text class="fld" x="312" y="772">okres · data_od/do</text>
+
+    <!-- eba_module -->
+    <rect class="tbl" x="510" y="640" width="180" height="60"/>
+    <rect class="hdr" x="510" y="640" width="180" height="26"/>
+    <text class="hdrtx" x="522" y="658">eba_module</text>
+    <text class="fld" x="522" y="682">code (CODIS…) · nazwa</text>
+
+    <!-- eba_template -->
+    <rect class="tbl" x="510" y="716" width="180" height="74"/>
+    <rect class="hdr" x="510" y="716" width="180" height="26"/>
+    <text class="hdrtx" x="522" y="734">eba_template</text>
+    <text class="fld" x="522" y="758">template_code (192)</text>
+    <text class="fld fk" x="522" y="775">module_id (FK)</text>
+
+    <!-- disclosure_requirement -->
+    <rect class="tbl" x="720" y="640" width="220" height="86"/>
+    <rect class="hdr" x="720" y="640" width="220" height="26"/>
+    <text class="hdrtx" x="732" y="658">disclosure_requirement</text>
+    <text class="fld" x="732" y="682">kategoria · template_code</text>
+    <text class="fld" x="732" y="700">obowiazek · czestotliwosc</text>
+    <text class="note" x="732" y="719">wzorzec: co bank MUSI złożyć</text>
+
+    <!-- validation_rule -->
+    <rect class="tbl" x="720" y="742" width="220" height="74"/>
+    <rect class="hdr" x="720" y="742" width="220" height="26"/>
+    <text class="hdrtx" x="732" y="760">validation_rule</text>
+    <text class="fld" x="732" y="784">typ · severity · threshold</text>
+    <text class="note" x="732" y="802">reguły EBA (progi w bazie)</text>
+
+    <!-- ====================== PRZEPŁYW (flow, czerwony) ====================== -->
+    <!-- EBA -> cała warstwa BRĄZ (parser rozkłada paczkę na 3 tabele) -->
+    <path class="flow" d="M190,350 L220,300" marker-end="url(#arr)"/>
+    <text class="flowtx" x="142" y="262">parser</text>
+    <text class="flowtx" x="142" y="276">xBRL-CSV</text>
+    <text class="reftx" x="118" y="430">parameters.csv → bronze_report</text>
+    <text class="reftx" x="118" y="446">FilingIndicators.csv → ...indicator</text>
+    <text class="reftx" x="118" y="462">k_*.csv → bronze_fact</text>
+
+    <!-- bronze_fact -> silver_fact -->
+    <path class="flow" d="M448,394 L500,205 L528,205" marker-end="url(#arr)"/>
+    <text class="flowtx" x="455" y="250">rozszyfruj</text>
+    <text class="flowtx" x="455" y="264">dp→metryka</text>
+
+    <!-- bronze_filing_indicator -> validation_result -->
+    <path class="flow" d="M448,283 L490,283 L490,360 L528,360" marker-end="url(#arr)"/>
+    <text class="flowtx" x="455" y="330">deklaracja</text>
+
+    <!-- silver_fact -> validation_result (spójność) -->
+    <path class="flow" d="M633,280 L633,304" marker-end="url(#arr)"/>
+
+    <!-- silver_fact -> gold -->
+    <path class="flow" d="M738,180 L800,167" marker-end="url(#arr)"/>
+    <text class="flowtx" x="744" y="150">agregacja</text>
+    <text class="flowtx" x="744" y="164">+ benchmark</text>
+
+    <!-- gold -> streamlit -->
+    <path class="flow" d="M955,388 L955,430" marker-end="url(#arr)"/>
+
+    <!-- ====================== ZASILANIA REFERENCYJNE (szare przerywane) ====================== -->
+    <!-- dpm2_ref -> silver_fact -->
+    <path class="ref" d="M150,640 L150,560 L520,560 L600,282" marker-end="url(#arrG)"/>
+    <text class="reftx" x="300" y="552">słownik DPM2 (dp → metryka+wymiary)</text>
+
+    <!-- disclosure_requirement -> validation_result -->
+    <path class="ref" d="M800,640 L800,470 L660,470 L660,442" marker-end="url(#arrG)"/>
+    <text class="reftx" x="690" y="500">wzorzec kompletności</text>
+
+    <!-- validation_rule -> validation_result -->
+    <path class="ref" d="M720,772 L700,772 L700,400 L738,400" marker-end="url(#arrG)"/>
+    <text class="reftx" x="640" y="560">reguły</text>
+
+    <!-- bank / period -> gold -->
+    <path class="ref" d="M480,675 L800,470" marker-end="url(#arrG)"/>
+    <text class="reftx" x="560" y="600">bank · okres (kontekst)</text>
+
+    <!-- eba_template -> bronze (mapowanie szablonu) opcjonalne pominięte dla czytelności -->
+
+    <!-- ====================== ORKIESTRACJA strzałki w dół ====================== -->
+    <path class="orch" d="M343,66 L343,92" marker-end="url(#arrG)"/>
+    <path class="orch" d="M633,66 L633,92" marker-end="url(#arrG)"/>
+    <path class="orch" d="M955,66 L955,92" marker-end="url(#arrG)"/>
+  </svg>
+
+  <div class="legend">
+    <b>Czytanie przepływu (czerwone strzałki):</b>
+    EBA → <span class="chip" style="background:#b87333">BRĄZ</span> (parser wczytuje paczkę as-is) →
+    <span class="chip" style="background:#6b7785">SREBRO</span> (dp-kod rozszyfrowany przez DPM2 na metrykę+wymiary, wartość otypowana; walidacja kompletności i spójności) →
+    <span class="chip" style="background:#b8941f">ZŁOTO</span> (widoki: wskaźniki, benchmark rówieśniczy, trendy) →
+    <span class="chip" style="background:#6a3fb5">DASHBOARD</span>.<br>
+    <b>Szare przerywane</b> = zasilenia z danych referencyjnych/master (słownik DPM2, wzorzec wymogów, reguły, kontekst banku/okresu).
+    <b>Zielone przerywane</b> = <span style="color:#1b5e20">Prefect</span> steruje całym łańcuchem (harmonogram, retry, log).<br>
+    <b>Kluczowa zasada:</b> pipeline NIC NIE LICZY — CET1/LCR są sprawozdane literalnie; rola systemu = wczytaj → rozszyfruj → zwaliduj → zestaw z grupą.
+  </div>
+</body>
+</html>

@@ -1,0 +1,79 @@
+# EBA Pillar 3 Data Pipeline — infrastruktura
+# Jedno polecenie `docker compose up -d` uruchamia wszystkie usługi
+
+version: "3.9"
+
+services:
+  # ============================================================
+  # PostgreSQL — główna baza danych projektu
+  # Tutaj przechowujemy: spis banków, taksonomię EBA, dane z raportów,
+  # wyniki walidacji i wskaźniki analityczne
+  # ============================================================
+  db:
+    image: postgres:16
+    container_name: eba_postgres
+    environment:
+      POSTGRES_USER: eba_user
+      POSTGRES_PASSWORD: eba_pass
+      POSTGRES_DB: eba_pillar3
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eba_user -d eba_pillar3"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================
+  # Prefect Server — orkiestrator pipeline'u
+  # Zarządza harmonogramem (kiedy uruchomić pipeline),
+  # śledzi postęp każdego kroku, obsługuje błędy i ponowienia
+  # ============================================================
+  prefect:
+    image: prefecthq/prefect:2-python3.11
+    container_name: eba_prefect
+    restart: unless-stopped
+    command: prefect server start --host 0.0.0.0 --port 4200
+    ports:
+      - "4200:4200"
+    environment:
+      PREFECT_SERVER_API_HOST: "0.0.0.0"
+      PREFECT_SERVER_API_PORT: "4200"
+      PREFECT_API_URL: "http://127.0.0.1:4200/api"
+    volumes:
+      - prefect_data:/root/.prefect
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4200/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================
+  # Streamlit — dashboard analityczny
+  # Aplikacja webowa do przeglądania wyników: wskaźniki banków,
+  # porównania, trendy, raporty walidacji
+  # ============================================================
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    container_name: eba_streamlit
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./analytics:/app/analytics
+      - ./gold:/app/gold
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://eba_user:eba_pass@db:5432/eba_pillar3
+
+volumes:
+  pgdata:
+    driver: local
+  prefect_data:
+    driver: local

@@ -1,0 +1,44 @@
+# ============================================================
+# EBA Pillar 3 Pipeline — zależności Python
+# Instalacja: pip install -r requirements.txt
+# ============================================================
+
+# Baza danych - komunikacja z PostgreSQL
+sqlalchemy>=2.0
+psycopg2-binary>=2.9
+
+# Transformacje danych - jak arkusz kalkulacyjny w Pythonie
+pandas>=2.2
+openpyxl>=3.1        # odczyt/zapis Excel (banki często publikują XLSX)
+
+# Walidacja danych - sprawdzanie poprawności typów i wartości
+pydantic>=2.5
+
+# Pobieranie danych z internetu
+httpx>=0.27
+requests>=2.31
+
+# Ekstrakcja tabel z PDF (starsze raporty)
+camelot-py>=0.12     # wyciąganie tabel z PDF
+tabula-py>=2.9       # alternatywne narzędzie do tabel w PDF
+
+# Parsowanie XBRL (nowe raporty)
+# arelle - instalowany osobno jako narzędzie zewnętrzne
+# (nie przez pip w wersji stabilnej dla Windows)
+lxml>=5.1            # do parsowania XML/XBRL
+
+# Orkiestracja - zarządzanie harmonogramem i przepływem
+prefect>=2.16
+watchdog>=4.0          # watcher strefy lądowania (auto-trigger pipeline po wrzuceniu pliku)
+
+# Dashboard - wizualizacja wyników
+streamlit>=1.32
+plotly>=5.19         # interaktywne wykresy
+
+# Testowanie
+pytest>=8.0
+pytest-cov>=4.1      # pokrycie kodu testami
+
+# Narzędzia pomocnicze
+pyyaml>=6.0          # czytanie plików konfiguracyjnych YAML
+python-dotenv>=1.0   # zmienne środowiskowe z pliku .env

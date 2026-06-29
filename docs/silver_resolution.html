@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Srebro — łańcuch znaczenia</title>
+<style>
+  body { font-family:"Segoe UI",Tahoma,sans-serif; background:#eef1f6; margin:0; padding:24px; }
+  h1 { font-size:18px; color:#1f3864; margin:0 0 4px; }
+  p.sub { color:#555; margin:0 0 16px; font-size:13px; }
+  svg { background:#fff; border:1px solid #c9d2e3; border-radius:6px; }
+  .legend { font-size:12px; color:#444; margin-top:14px; line-height:1.7; max-width:1100px; }
+  .legend b { color:#1f3864; }
+</style>
+</head>
+<body>
+  <h1>Srebro — łańcuch ZNACZENIA faktu (metryka + wymiary)</h1>
+  <p class="sub">Znaczenie = co (metryka) + w jakim przekroju (wymiary). Koordynaty tabeli/etykiety = prezentacja → złoto.</p>
+
+  <svg width="1180" height="600" viewBox="0 0 1180 600">
+    <defs>
+      <marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L7,3 L0,6 Z" fill="#c00000"/>
+      </marker>
+      <style>
+        .box  { fill:#fff; stroke:#8aa0c8; stroke-width:1.2; }
+        .hdr  { font-size:13px; font-weight:bold; }
+        .sub  { font-size:11px; fill:#444; }
+        .dpm  { fill:#eef3fc; stroke:#4472C4; }
+        .br   { fill:#fbf3ea; stroke:#b87333; }
+        .sv   { fill:#f2f4f7; stroke:#6b7785; }
+        .gold { fill:#fbf6df; stroke:#c9a227; }
+        .flow { stroke:#c00000; stroke-width:1.8; fill:none; }
+        .lbl  { fill:#c00000; font-size:11px; font-weight:bold; }
+        .rlbl { fill:#2c4a8a; font-size:10.5px; font-style:italic; }
+      </style>
+    </defs>
+
+    <!-- bronze_fact -->
+    <rect class="box br" x="20" y="250" width="180" height="92" rx="4"/>
+    <text class="hdr" x="32" y="272" fill="#8a5a23">bronze_fact</text>
+    <text class="sub" x="32" y="292">datapoint_code (dp..)</text>
+    <text class="sub" x="32" y="310">fact_value (tekst)</text>
+
+    <!-- VariableVID (okno release) -->
+    <rect class="box dpm" x="250" y="250" width="210" height="92" rx="4"/>
+    <text class="hdr" x="262" y="272" fill="#2c4a8a">variableversion</text>
+    <text class="sub" x="262" y="292">VariableID + okno release</text>
+    <text class="sub" x="262" y="310">→ VariableVID</text>
+    <text class="sub" x="262" y="328">PropertyID(metryka), ContextID</text>
+
+    <!-- gałąź A: typ -->
+    <rect class="box dpm" x="540" y="40" width="230" height="80" rx="4"/>
+    <text class="hdr" x="552" y="62" fill="#2c4a8a">property → datatype</text>
+    <text class="sub" x="552" y="82">is_metric · data_type</text>
+    <text class="sub" x="552" y="100">value_num (btrim+cast)</text>
+
+    <!-- gałąź B: metryka -->
+    <rect class="box dpm" x="540" y="250" width="230" height="80" rx="4"/>
+    <text class="hdr" x="552" y="272" fill="#2c4a8a">item (po PropertyID)</text>
+    <text class="sub" x="552" y="292">→ metric_name</text>
+    <text class="sub" x="552" y="310">"Exposure value"</text>
+
+    <!-- gałąź C: wymiary -->
+    <rect class="box dpm" x="540" y="450" width="230" height="110" rx="4"/>
+    <text class="hdr" x="552" y="472" fill="#2c4a8a">contextcomposition</text>
+    <text class="sub" x="552" y="492">po ContextID → pary:</text>
+    <text class="sub" x="552" y="510">PropertyID→item = WYMIAR</text>
+    <text class="sub" x="552" y="528">ItemID→item = CZŁONEK</text>
+    <text class="sub" x="552" y="546">(1–11 wymiarów/fakt)</text>
+
+    <!-- silver_fact -->
+    <rect class="box sv" x="850" y="150" width="300" height="150" rx="4"/>
+    <text class="hdr" x="862" y="172" fill="#55606b">silver_fact (1/fakt)</text>
+    <text class="sub" x="862" y="194">variable_vid · metric_name</text>
+    <text class="sub" x="862" y="212">data_type · value_num</text>
+    <text class="sub" x="862" y="230">context_id · dim_count</text>
+    <text class="sub" x="862" y="252">resolution_status</text>
+    <text class="sub" x="862" y="278" fill="#1b5e20">"Exposure value" = 214,8 mld</text>
+
+    <!-- silver_fact_dimension -->
+    <rect class="box sv" x="850" y="430" width="300" height="130" rx="4"/>
+    <text class="hdr" x="862" y="452" fill="#55606b">silver_fact_dimension (N/fakt)</text>
+    <text class="sub" x="862" y="474">dimension_name = member_name</text>
+    <text class="sub" x="862" y="496" fill="#1b5e20">Type of risk = Counterparty credit</text>
+    <text class="sub" x="862" y="514" fill="#1b5e20">Prudential portfolio = Banking+trad</text>
+    <text class="sub" x="862" y="532" fill="#1b5e20">Residual maturity = ≥ 1 year</text>
+
+    <!-- GOLD note -->
+    <rect class="box gold" x="850" y="40" width="300" height="70" rx="4"/>
+    <text class="hdr" x="862" y="62" fill="#9a7c12">ZŁOTO (później)</text>
+    <text class="sub" x="862" y="82">koordynaty tabeli + etykiety</text>
+    <text class="sub" x="862" y="100">tableversioncell, headerversion</text>
+
+    <!-- strzałki -->
+    <path class="flow" d="M200,296 L250,296" marker-end="url(#a)"/>
+    <text class="lbl" x="200" y="288">dp→ID</text>
+    <path class="flow" d="M460,280 C500,200 510,120 540,90" marker-end="url(#a)"/>
+    <path class="flow" d="M460,296 L540,290" marker-end="url(#a)"/>
+    <path class="flow" d="M460,312 C500,400 510,480 540,495" marker-end="url(#a)"/>
+    <path class="flow" d="M770,80 C820,110 830,150 850,200" marker-end="url(#a)"/>
+    <path class="flow" d="M770,290 C810,280 820,260 850,235" marker-end="url(#a)"/>
+    <path class="flow" d="M770,505 L850,500" marker-end="url(#a)"/>
+    <text class="rlbl" x="788" y="495">context_id łączy</text>
+  </svg>
+
+  <div class="legend">
+    <b>Trzy gałęzie z jednej zmiennej (VariableVID):</b> <b>typ+wartość</b> (property→datatype, value_num),
+    <b>metryka</b> (item po PropertyID = co mierzone), <b>wymiary</b> (contextcomposition = w jakim przekroju).
+    Wynik: <b>silver_fact</b> (1 wiersz/fakt) + <b>silver_fact_dimension</b> (N wierszy = rozkład wymiarowy).<br>
+    <b>Dlaczego nie koordynaty tabeli:</b> ten sam VariableVID bywa w wielu komórkach → adres = prezentacja, nie znaczenie.
+    Etykiety wiersza/kolumny dociągniemy w <b>złocie</b>, do dashboardu.<br>
+    <b>Okno release'u</b> = wersja zmiennej ważna dla frameworku raportu (4.1/4.2), zasada „aktu prawnego na datę".
+  </div>
+</body>
+</html>

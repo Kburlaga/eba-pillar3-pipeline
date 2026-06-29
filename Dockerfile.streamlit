@@ -1,0 +1,19 @@
+# Dockerfile dla dashboardu Streamlit
+# Streamlit to framework do szybkiego tworzenia dashboardów analitycznych.
+# Działa jak "nakładka wizualna" na dane z bazy — podobnie jak Power BI,
+# ale kodujesz go w Pythonie i działa w przeglądarce.
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Instalacja zależności
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Kod dashboardu będzie montowany przez docker-compose
+# (wolumin: ./analytics:/app/analytics)
+
+EXPOSE 8501
+
+CMD ["streamlit", "run", "analytics/dashboard.py", "--server.port=8501", "--server.address=0.0.0.0"]

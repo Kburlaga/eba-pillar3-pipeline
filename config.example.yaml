@@ -1,0 +1,33 @@
+# ============================================================
+# WZORZEC konfiguracji — skopiuj do config.yaml i uzupełnij własnymi wartościami.
+# config.yaml jest w .gitignore (zawiera sekrety) i NIE trafia do repo.
+# ============================================================
+
+# --- Baza danych (PostgreSQL) ---
+database:
+  host: 127.0.0.1          # adres serwera Postgres
+  port: 5432
+  user: eba_user
+  password: CHANGE_ME      # ustaw własne hasło
+  dbname: eba_pillar3
+
+# --- Źródła danych EBA ---
+eba:
+  p3dh_api_url: "https://edap-public.eba.europa.eu/ExternalLinks/index"
+  dpm_url: "https://www.eba.europa.eu/risk-and-data-analysis/reporting/dpm-data-dictionary"
+  framework_version: "4.1"
+  # Lokalna kopia bazy DPM2 (pobierz ze strony EBA — patrz README)
+  dpm2_database: "master_data/extracted/dpm2/DPM2 Database_v 4_2_20251125.accdb"
+
+# --- Ścieżki warstw Medallion ---
+paths:
+  bronze: "bronze/"
+  silver: "silver/"
+  gold: "gold/"
+  master_data: "master_data/"
+  analytics: "analytics/"
+
+# --- Orkiestracja (Prefect) ---
+prefect:
+  api_url: "http://localhost:4200/api"
+  schedule: "0 6 * * 1"
