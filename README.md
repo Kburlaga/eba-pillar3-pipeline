@@ -147,6 +147,14 @@ validate fully (and pass — they are published filings). Reports on **4.2** are
 marked `skipped` until the 4.2 taxonomy package is added (its online entry point
 is not reachable; the package must be downloaded from the EBA).
 
+**Cross-check (Arelle vs DPM).** `crosscheck_arelle.py` independently extracts
+facts (concept + dimensions) from the taxonomy via Arelle and reconciles them
+against our DPM-built Silver. Result: fact counts and numeric values match **1:1
+for all reports**; dimension counts match for 4.2, with a small representation
+difference on 4.1 (likely defaulted dimensions) — surfaced in the dashboard
+(`silver_crosscheck`). Two independent engines, same data — confidence the DPM
+resolution is correct.
+
 *Planned (educational):* a second path that transforms the EBA rules straight
 from the DPM `operation*` tables into executable checks, to compare both engines
 on the same rules.

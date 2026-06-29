@@ -254,3 +254,23 @@ with tab4:
             st.success("Brak naruszeń — raport zgodny z regułami EBA (lub nie był walidowany).")
         else:
             st.dataframe(viol, use_container_width=True, hide_index=True)
+
+    st.divider()
+    st.subheader("Krzyżowa kontrola: srebro (DPM) vs Arelle (taksonomia)")
+    st.caption("Niezależna weryfikacja: nasze rozszyfrowanie z DPM vs ekstrakcja Arelle z taksonomii.")
+    xc = q("""
+        SELECT COALESCE(b.nazwa, br.lei) AS bank, br.ref_period::text AS okres, x.status,
+               x.silver_facts, x.values_matched, x.only_silver, x.only_arelle,
+               x.silver_dims, x.arelle_dims
+        FROM silver_crosscheck x
+        JOIN bronze_report br ON br.id = x.report_id
+        LEFT JOIN bank b ON b.lei = br.lei
+        ORDER BY bank, okres
+    """)
+    if xc.empty:
+        st.info("Brak wyników. Uruchom: `python crosscheck_arelle.py`")
+    else:
+        ok = int((xc["status"] == "match").sum())
+        xc.columns = ["Bank","Okres","Status","Fakty","Wartości zgodne","Tylko srebro","Tylko Arelle","Wymiary (srebro)","Wymiary (Arelle)"]
+        st.dataframe(xc, use_container_width=True, hide_index=True)
+        st.caption(f"{ok}/{len(xc)} raportów: pełna zgodność (fakty, wartości i wymiary identyczne dwiema niezależnymi drogami).")
