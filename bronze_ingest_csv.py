@@ -152,13 +152,18 @@ def ingest(conn, p: dict):
         "INSERT INTO bronze_fact (report_id, template_file, datapoint_code, fact_value) VALUES (%s,%s,%s,%s)",
         [(report_id, tf, dp, val) for tf, dp, val in p["facts"]], page_size=1000)
 
-    # 4. przelicz is_current dla całej grupy (najnowszy report_generated = TRUE)
+    # 4. przelicz version_no + is_current dla całej grupy (per business_key, wg daty przekazania)
+    #    v1 = najstarsza, najwyższy numer = najnowsza = is_current=TRUE
     cur.execute("""
+        WITH v AS (
+            SELECT id,
+                   ROW_NUMBER() OVER (PARTITION BY business_key ORDER BY report_generated) AS vno,
+                   (report_generated = MAX(report_generated) OVER (PARTITION BY business_key)) AS cur
+            FROM bronze_report WHERE business_key = %s
+        )
         UPDATE bronze_report b
-        SET is_current = (b.report_generated = sub.maxgen)
-        FROM (SELECT business_key, MAX(report_generated) AS maxgen
-              FROM bronze_report WHERE business_key = %s GROUP BY business_key) sub
-        WHERE b.business_key = sub.business_key""", (p["business_key"],))
+        SET version_no = v.vno, is_current = v.cur
+        FROM v WHERE b.id = v.id""", (p["business_key"],))
 
     conn.commit()                                       # commit per plik
     cur.close()

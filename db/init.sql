@@ -85,6 +85,7 @@ CREATE TABLE IF NOT EXISTS bronze_report (
     framework_version   VARCHAR(10),                         -- "4.2" -> dpm2_ref.release.Code
     report_generated    TIMESTAMP,                           -- timestamp z nazwy = NUMER WERSJI
     business_key        VARCHAR(120),                        -- lei|consolidation|ref_period|module
+    version_no          INTEGER,                             -- numer wersji w grupie (v1=najstarsza)
     is_current          BOOLEAN DEFAULT TRUE,                -- najnowsza wersja sprawozdania
     loaded_at           TIMESTAMP DEFAULT now()
 );
